@@ -99,6 +99,8 @@ const store = {
 };
 let repos = [];
 let previews = store.get('rh_prev'); if (previews === null) previews = true;
+const inFrame = window.top !== window; // shown as a preview of itself: don't nest more previews
+if (inFrame) previews = false;
 const sortPick = store.get('rh_sort'); if (sortPick) $('#sort').value = sortPick;
 
 function ago(iso){
@@ -164,7 +166,7 @@ function loadPreviews(){
   io = new IntersectionObserver(es => es.forEach(e => {
     if (!e.isIntersecting) return;
     const box = e.target; io.unobserve(box);
-    if (!box.dataset.site || box.querySelector('iframe')) return;
+    if (!box.dataset.site || box.querySelector('iframe') || inFrame) return;
     const f = document.createElement('iframe');
     f.src = box.dataset.site; f.loading = 'lazy'; f.tabIndex = -1;
     f.setAttribute('aria-hidden','true');
